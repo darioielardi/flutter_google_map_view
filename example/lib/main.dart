@@ -220,9 +220,6 @@ class _MyAppState extends State<MyApp> {
     sub = mapView.onMapTapped
         .listen((location) => print("Touched location $location"));
     compositeSubscription.add(sub);
-    sub = mapView.onMapLongTapped
-        .listen((location) => print("Long tapped location $location"));
-    compositeSubscription.add(sub);
     sub = mapView.onCameraChanged.listen((cameraPosition) =>
         this.setState(() => this.cameraPosition = cameraPosition));
     compositeSubscription.add(sub);
@@ -251,12 +248,6 @@ class _MyAppState extends State<MyApp> {
     sub = mapView.onInfoWindowTapped.listen((marker) {
       print("Info Window Tapped for ${marker.title}");
     });
-    compositeSubscription.add(sub);
-    sub = mapView.onIndoorBuildingActivated.listen(
-        (indoorBuilding) => print("Activated indoor building $indoorBuilding"));
-    compositeSubscription.add(sub);
-    sub = mapView.onIndoorLevelActivated.listen(
-        (indoorLevel) => print("Activated indoor level $indoorLevel"));
     compositeSubscription.add(sub);
   }
 

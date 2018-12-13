@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:map_view/camera_position.dart';
-import 'package:map_view/indoor_building.dart';
 import 'package:map_view/location.dart';
 import 'package:map_view/map_options.dart';
 import 'package:map_view/marker.dart';
@@ -36,9 +35,7 @@ class MapView {
       new StreamController.broadcast();
   StreamController<Location> _locationChangeStreamController =
       new StreamController.broadcast();
-  StreamController<Location> _mapTapInteractionStreamController =
-      new StreamController.broadcast();
-  StreamController<Location> _mapLongTapInteractionStreamController =
+  StreamController<Location> _mapInteractionStreamController =
       new StreamController.broadcast();
   StreamController<CameraPosition> _cameraStreamController =
       new StreamController.broadcast();
@@ -47,10 +44,6 @@ class MapView {
   StreamController<Null> _mapReadyStreamController =
       new StreamController.broadcast();
   StreamController<Marker> _infoWindowStreamController =
-      new StreamController.broadcast();
-  StreamController<IndoorBuilding> _indoorBuildingActivatedStreamController =
-      new StreamController.broadcast();
-  StreamController<IndoorLevel> _indoorLevelActivatedStreamController =
       new StreamController.broadcast();
 
   Map<String, Marker> _annotations = {};
@@ -259,9 +252,7 @@ class MapView {
   Stream<Location> get onLocationUpdated =>
       _locationChangeStreamController.stream;
 
-  Stream<Location> get onMapTapped => _mapTapInteractionStreamController.stream;
-
-  Stream<Location> get onMapLongTapped => _mapLongTapInteractionStreamController.stream;
+  Stream<Location> get onMapTapped => _mapInteractionStreamController.stream;
 
   Stream<CameraPosition> get onCameraChanged => _cameraStreamController.stream;
 
@@ -270,12 +261,6 @@ class MapView {
   Stream<Null> get onMapReady => _mapReadyStreamController.stream;
 
   Stream<Marker> get onInfoWindowTapped => _infoWindowStreamController.stream;
-
-  Stream<IndoorBuilding> get onIndoorBuildingActivated =>
-      _indoorBuildingActivatedStreamController.stream;
-
-  Stream<IndoorLevel> get onIndoorLevelActivated =>
-      _indoorLevelActivatedStreamController.stream;
 
   Future<dynamic> _handleMethod(MethodCall call) async {
     switch (call.method) {
@@ -350,40 +335,13 @@ class MapView {
       case "mapTapped":
         Map locationMap = call.arguments;
         Location location = new Location.fromMap(locationMap);
-        _mapTapInteractionStreamController.add(location);
-        return new Future.value("");
-      case "mapLongTapped":
-        Map locationMap = call.arguments;
-        Location location = new Location.fromMap(locationMap);
-        _mapLongTapInteractionStreamController.add(location);
+        _mapInteractionStreamController.add(location);
         return new Future.value("");
       case "cameraPositionChanged":
         _cameraStreamController.add(new CameraPosition.fromMap(call.arguments));
         return new Future.value("");
       case "onToolbarAction":
         _toolbarActionStreamController.add(call.arguments);
-        break;
-      case "indoorBuildingActivated":
-        if (call.arguments == null) {
-          _indoorBuildingActivatedStreamController.add(null);
-        } else {
-          List<IndoorLevel> levels = [];
-          for (var value in call.arguments["levels"]) {
-            levels.add(IndoorLevel(value["name"], value["shortName"]));
-          }
-          _indoorBuildingActivatedStreamController.add(new IndoorBuilding(
-              call.arguments["underground"],
-              call.arguments["defaultLevelIndex"],
-              levels));
-        }
-        break;
-      case "indoorLevelActivated":
-        if (call.arguments == null) {
-          _indoorLevelActivatedStreamController.add(null);
-        } else {
-          _indoorLevelActivatedStreamController.add(
-              IndoorLevel(call.arguments["name"], call.arguments["shortName"]));
-        }
         break;
     }
     return new Future.value("");

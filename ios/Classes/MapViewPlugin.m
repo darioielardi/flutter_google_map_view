@@ -266,10 +266,6 @@
     [self.channel invokeMethod:@"mapTapped" arguments:@{@"latitude": @(coordinate.latitude), @"longitude": @(coordinate.longitude)}];
 }
 
-- (void)mapLongTapped:(CLLocationCoordinate2D)coordinate {
-    [self.channel invokeMethod:@"mapLongTapped" arguments:@{@"latitude": @(coordinate.latitude), @"longitude": @(coordinate.longitude)}];
-}
-
 - (void)cameraPositionChanged:(GMSCameraPosition *)position {
     [self.channel invokeMethod:@"cameraPositionChanged" arguments:@{
             @"latitude": @(position.target.latitude),
@@ -286,40 +282,6 @@
     float zoom = [dict[@"zoom"] floatValue];
     GMSCameraPosition *camera = [GMSCameraPosition cameraWithTarget:CLLocationCoordinate2DMake(latitude, longitude) zoom:zoom];
     return camera;
-}
-
-- (void)indoorBuildingActivated:(GMSIndoorBuilding *)indoorBuilding {
-    NSDictionary *arg = nil;
-    if (indoorBuilding != nil) {
-        arg = @{@"underground": @(indoorBuilding.underground),
-                @"defaultLevelIndex": @(indoorBuilding.defaultLevelIndex),
-                @"levels": [self mappingIndoorLevels:indoorBuilding.levels]};
-    }
-    [self.channel invokeMethod:@"indoorBuildingActivated" arguments:arg];
-}
-
-- (void)indoorLevelActivated:(GMSIndoorLevel *)indoorLevel {
-    NSDictionary *arg = nil;
-    if (indoorLevel != nil) {
-        arg =  [self mappingIndoorLevel:indoorLevel];
-    }
-    [self.channel invokeMethod:@"indoorLevelActivated" arguments:arg];
-}
-
-- (NSArray<NSDictionary *> *)mappingIndoorLevels:(NSArray<GMSIndoorLevel *> *)levels {
-    if (levels == nil) {
-        return nil;
-    }
-    NSMutableArray* array = [NSMutableArray array];
-    for (GMSIndoorLevel *level in levels) {
-        [array addObject: [self mappingIndoorLevel:level]];
-    }
-    return array;
-}
-
-- (NSDictionary *)mappingIndoorLevel:(GMSIndoorLevel *)level {
-    return @{@"name": [NSString stringWithString:level.name],
-             @"shortName": [NSString stringWithString:level.shortName]};
 }
 
 - (int)getMapViewType:(NSString *)mapViewTypeName {

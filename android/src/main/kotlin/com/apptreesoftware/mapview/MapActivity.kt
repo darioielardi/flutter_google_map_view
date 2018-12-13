@@ -79,9 +79,6 @@ class MapActivity : AppCompatActivity(),
         map.setOnMapClickListener { latLng ->
             MapViewPlugin.mapTapped(latLng)
         }
-        map.setOnMapLongClickListener({ latLng ->
-            MapViewPlugin.mapLongTapped(latLng)
-        })
         map.setOnMarkerClickListener { marker ->
             MapViewPlugin.annotationTapped(marker.tag as String)
             false
@@ -103,19 +100,6 @@ class MapActivity : AppCompatActivity(),
         map.setOnInfoWindowClickListener { marker ->
             MapViewPlugin.infoWindowTapped(marker.tag as String)
         }
-        map.setOnIndoorStateChangeListener(object : GoogleMap.OnIndoorStateChangeListener {
-            override fun onIndoorBuildingFocused() {
-                MapViewPlugin.indoorBuildingActivated(map.focusedBuilding)
-            }
-
-            override fun onIndoorLevelActivated(building: IndoorBuilding?) {
-                if (building == null || building.activeLevelIndex < 0) {
-                    MapViewPlugin.indoorLevelActivated(null)
-                } else {
-                    MapViewPlugin.indoorLevelActivated(building.levels.get(building.activeLevelIndex))
-                }
-            }
-        })
         map.moveCamera(CameraUpdateFactory.newCameraPosition(
                 MapViewPlugin.initialCameraPosition))
         MapViewPlugin.onMapReady()

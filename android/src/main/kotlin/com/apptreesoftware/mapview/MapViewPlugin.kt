@@ -8,8 +8,6 @@ import android.os.Build
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.IndoorBuilding
-import com.google.android.gms.maps.model.IndoorLevel
 import com.google.android.gms.maps.model.LatLng
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -85,12 +83,6 @@ class MapViewPlugin(val activity: Activity) : MethodCallHandler {
                             "longitude" to latLng.longitude))
         }
 
-        fun mapLongTapped(latLng: LatLng) {
-            this.channel.invokeMethod("mapLongTapped",
-                    mapOf("latitude" to latLng.latitude,
-                            "longitude" to latLng.longitude))
-        }
-
         fun annotationTapped(id: String) {
             this.channel.invokeMethod("annotationTapped", id)
         }
@@ -162,38 +154,6 @@ class MapViewPlugin(val activity: Activity) : MethodCallHandler {
             val key = registrar.lookupKeyForAsset(asset)
             return assetManager.openFd(key)
         }
-
-        fun indoorBuildingActivated(indoorBuilding: IndoorBuilding?) {
-            if (indoorBuilding == null) {
-                this.channel.invokeMethod("indoorBuildingActivated", null)
-            } else {
-                this.channel.invokeMethod("indoorBuildingActivated", mapOf(
-                        "underground" to indoorBuilding.isUnderground,
-                        "defaultIndex" to indoorBuilding.defaultLevelIndex,
-                        "levels" to mappingIndoorLevels(indoorBuilding.levels)))
-            }
-        }
-
-        fun indoorLevelActivated(level: IndoorLevel?) {
-            if (level == null) {
-                this.channel.invokeMethod("indoorLevelActivated", null)
-            } else {
-                this.channel.invokeMethod("indoorLevelActivated", mappingIndoorLevel(level))
-            }
-        }
-
-        private fun mappingIndoorLevels(levels: List<IndoorLevel>): List<Map<String, Any>> {
-            val list = mutableListOf<Map<String, Any>>()
-            levels.forEach { level -> list.add(mappingIndoorLevel(level)) }
-            return list
-        }
-
-        private fun mappingIndoorLevel(level: IndoorLevel): Map<String, Any> {
-            return mapOf(
-                    "name" to level.name,
-                    "shortName" to level.shortName
-            )
-        }
     }
 
     override fun onMethodCall(call: MethodCall, result: Result): Unit {
@@ -205,7 +165,7 @@ class MapViewPlugin(val activity: Activity) : MethodCallHandler {
                     return
                 }
                 val mapOptions = call.argument<Map<String, Any>>("mapOptions")
-                val cameraDict = mapOptions["cameraPosition"] as Map<String, Any>
+                val cameraDict = mapOptions!!["cameraPosition"] as Map<String, Any>
                 initialCameraPosition = getCameraPosition(cameraDict)
                 toolbarActions = getToolbarActions(call.argument<List<Map<String, Any>>>("actions"))
                 showUserLocation = mapOptions["showUserLocation"] as Boolean
